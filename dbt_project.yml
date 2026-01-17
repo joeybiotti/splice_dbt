@@ -1,0 +1,24 @@
+name: 'splice_dbt'  # This must be here!
+version: '1.0.0'
+config-version: 2
+
+# This profile name MUST match the one we put in your local profiles.yml
+profile: 'splice_dbt' 
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  splice_dbt:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table
