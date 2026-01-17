@@ -20,5 +20,7 @@ models:
   splice_dbt:
     staging:
       +materialized: view
+      +schema: staging
     marts:
       +materialized: table
+      +schema: marts
