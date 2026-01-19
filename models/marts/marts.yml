@@ -1,25 +1,35 @@
 version: 2
 
 models:
-  - name: fct_movie_economics
-    description: "The primary fact table for movie-level financials. Each row is a unique movie with its calculated profit and ROI."
+  - name: dim_movies
+    description: "The primary dimension for movies. Contains one row per unique movie title/director/year."
     columns:
       - name: movie_id
         tests:
           - unique
           - not_null
-      - name: total_profit
-        description: "Calculated as (gross_revenue - budget)."
+      - name: title
+        description: "The cleaned title of the movie."
 
-  - name: fct_genre_economics
-    description: >
-      Aggregated economic metrics by genre. 
-      Note: This model uses unnested genre data, meaning a single movie's 
-      financials contribute to every genre it belongs to.
+  - name: dim_genres
+    description: "A lookup table for all unique movie genres found in the dataset."
     columns:
+      - name: genre_key
+        tests:
+          - unique
+          - not_null
       - name: genre_name
-        description: "The specific genre (e.g., Horror, Sci-Fi, Documentary)."
         tests:
           - not_null
-      - name: genre_roi
-        description: "The average ROI for this genre. (Sum of Revenue - Sum of Budget) / Sum of Budget."
+
+  - name: fct_movie_economics
+    description: "Financial metrics for each movie. Join to dim_movies on movie_id."
+    columns:
+      - name: movie_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_movies')
+              field: movie_id
+      - name: total_profit
+        description: "Revenue minus budget."
