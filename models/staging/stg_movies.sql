@@ -17,7 +17,7 @@ renamed as (
         cast(color as varchar) as color,
         cast(content_rating as varchar) as content_rating,
         cast(genres as varchar) as genres,
-        cast(tile_year as integer) as title_year,
+        cast(title_year as integer) as title_year,
 
         -- Numeric columns
         cast(duration as integer) as duration,
@@ -31,4 +31,4 @@ renamed as (
 
 )
 
-select * from renamed;
+select * from renamed
