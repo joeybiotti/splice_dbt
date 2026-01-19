@@ -4,6 +4,3 @@ models:
   - name: stg_movies
     columns:
       - name: movie_id
-        tests:
-          - unique
-          - not_null

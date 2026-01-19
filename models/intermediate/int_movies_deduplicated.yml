@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: int_movies_deduplicated
+    description: "The source of truth where the 117 duplicates are removed."
+    columns:
+      - name: movie_id
+        tests:
+          - unique
+          - not_null
