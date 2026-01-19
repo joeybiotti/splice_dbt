@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: fct_movie_economics
+    description: "The primary fact table for movie-level financials. Each row is a unique movie with its calculated profit and ROI."
+    columns:
+      - name: movie_id
+        tests:
+          - unique
+          - not_null
+      - name: total_profit
+        description: "Calculated as (gross_revenue - budget)."
+
+  - name: fct_genre_economics
+    description: >
+      Aggregated economic metrics by genre. 
+      Note: This model uses unnested genre data, meaning a single movie's 
+      financials contribute to every genre it belongs to.
+    columns:
+      - name: genre_name
+        description: "The specific genre (e.g., Horror, Sci-Fi, Documentary)."
+        tests:
+          - not_null
+      - name: genre_roi
+        description: "The average ROI for this genre. (Sum of Revenue - Sum of Budget) / Sum of Budget."
