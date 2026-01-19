@@ -1,59 +1,34 @@
-WITH source AS (
-    SELECT
-        *
-    FROM
-        {{ source(
-            'raw',
-            'movies'
-        )}}
+with source as (
+    select * from {{ source('raw', 'movies') }}
 ),
-cleaned AS (
-    SELECT
-        *,
-        -- 1. Aggressive cleaning for the "Logical" Key
-        TRIM(REPLACE(movie_title, CHR(160), '')) AS clean_title,
-        TRIM(
-            REPLACE(COALESCE(director_name, 'Unknown'), CHR(160), '')
-        ) AS clean_director,
-        COALESCE(TRY_CAST(title_year AS INTEGER), 0) AS clean_year
-    FROM
-        source
-),
-deduped AS (
-    SELECT
-        *
-    FROM
-        cleaned qualify ROW_NUMBER() over (
-            PARTITION BY clean_title,
-            clean_director,
-            clean_year
-            ORDER BY
-                num_voted_users DESC,
-                movie_facebook_likes DESC
-        ) = 1
-),
-FINAL AS (
-    SELECT
-        MD5(
-            COALESCE(clean_title, '') || COALESCE(clean_director, '')|| COALESCE(cast(clean_year AS varchar), '0')
-        ) AS movie_id,
-        clean_title AS movie_title,
-        director_name,
-        country,
-        LANGUAGE,
-        TRY_CAST(title_year AS INTEGER) AS release_year, 
-        CAST(gross AS bigint) AS gross_revenue,
-        CAST(budget AS bigint) AS budget,
-        CAST(imdb_score AS DECIMAL(3, 1)) AS imdb_score,
-        CAST(DURATION AS INTEGER) AS duration_minutes,
-        CAST(
-            movie_facebook_likes AS INTEGER
-        ) AS movie_facebook_likes,
-        string_split(genres, '|') AS genre_list
-    FROM
-        deduped
+
+renamed as (
+    select
+        -- Create ID for downstream models
+        md5(
+            coalesce(cast(movie_title as varchar), '')
+            || coalesce(cast(director_name as varchar), '')
+            || coalesce(cast(title_year as varchar), '')
+        ) as movie_id,
+
+        -- Text columns
+        cast(movie_title as varchar) as movie_title,
+        cast(director_name as varchar) as director_name,
+        cast(color as varchar) as color,
+        cast(content_rating as varchar) as content_rating,
+        cast(genres as varchar) as genres,
+        cast(tile_year as integer) as title_year,
+
+        -- Numeric columns
+        cast(duration as integer) as duration,
+        cast(gross as bigint) as gross_revenue,
+        cast(budget as bigint) as budget,
+        cast(num_voted_users as integer) as num_voted_users,
+        cast(imdb_score as float) as imdb_score,
+        cast(aspect_ratio as float) as aspect_ration
+
+    from source
+
 )
-SELECT
-    *
-FROM
-    FINAL
+
+select * from renamed;
