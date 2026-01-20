@@ -1,39 +1,33 @@
 # Splice Data Warehouse
-### Modern Analytics with dbt and DuckDB
+### dbt + DuckDB
 
-This project transforms raw, high-variance movie datasets into a structured Star Schema analytical warehouse. The goal was to move beyond flat-file analysis and implement a modular architecture that ensures data integrity and supports complex many-to-many relationships.
+This project transforms a messy movie dataset into a clean, searchable warehouse. I moved away from using one giant flat file and instead built a Star Schema to keep the data organized and reliable.
 
-## Data Lineage
-The following Directed Acyclic Graph (DAG) represents the end-to-end transformation flow.
+## Data Flow
+Everything moves from raw files into staging, through a cleanup layer, and finally into the "marts" where the data is ready for analysis.
 
 ![Project Lineage Graph](./assets/lineage_graph.png)
 
-The pipeline is organized into three distinct layers:
-* **Staging**: Initial schema enforcement and type casting of raw CSV sources.
-* **Intermediate**: A clean room layer where data is deduplicated and pipe-delimited strings are parsed into native database arrays.
-* **Marts**: The final dimensional model, consisting of core dimensions, a performance-optimized fact table, and a bridge table to resolve many-to-many genre relationships.
-
-## Architectural Decisions
+## The Setup
 
 ### Dimensional Modeling
-I implemented a Star Schema to separate descriptive metadata from quantitative metrics. This ensures that movie attributes (Dimensions) are stored once, while financial performance (Facts) is aggregated without data fan-out.
+I split the data into **Facts** (the numbers, like revenue and budget) and **Dimensions** (the descriptions, like movie titles and release dates). This keeps the warehouse efficient and easy to query.
 
-### Bridge Table Implementation
-To handle movies belonging to multiple genres, I utilized a bridge table (bridge_movie_genres). This allows for granular genre-level analysis without duplicating revenue figures in the central fact table—a critical step for maintaining a Single Source of Truth.
+### The Bridge Table
+Movies often have multiple genres (e.g., Sci-Fi and Action). I built a bridge table to handle this many-to-many relationship. This allows us to filter by genre without accidentally duplicating the revenue numbers in our reports.
 
-### Data Quality and Governance
-Reliability is managed through dbt's native testing framework.
-* **Primary Key Validation**: Ensuring 1:1 grain in core dimensions.
-* **Referential Integrity**: Relationship tests verify that every fact record correctly maps back to its parent dimension.
-* **Schema Testing**: Null-checks and type-validation on all critical columns.
+### Data Quality
+I used dbt tests to make sure the data stays clean:
+* **Uniqueness**: Making sure we don't have duplicate movies.
+* **Relationships**: Ensuring every "Fact" correctly points to a real "Dimension."
+* **Null checks**: Checking for missing data in critical columns.
 
 ## Tech Stack
-* **Engine**: DuckDB
-* **Transformation**: dbt (Data Build Tool)
-* **Environment**: Python 3.12
+* **DuckDB**: The database engine.
+* **dbt**: The transformation and testing logic.
+* **Python**: Used for the initial data ingestion.
 
-## Getting Started
-1. Activate the environment: `source .venv/bin/activate`
-2. Run ingestion: `python scripts/ingest.py`
-3. Build and test the warehouse: `cd transform && dbt build`
-4. View documentation: `dbt docs generate && dbt docs serve`
+## How to Run
+1. `source .venv/bin/activate`
+2. `python scripts/ingest.py`
+3. `cd transform && dbt build`
