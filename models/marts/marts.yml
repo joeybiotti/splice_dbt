@@ -21,6 +21,20 @@ models:
       - name: genre_name
         tests:
           - not_null
+  
+  - name: bridge_movie_genres
+    description: "The link table between movies and genres. One movie can have multiple genres."
+    columns:
+      - name: movie_id
+        tests:
+          - relationships:
+              to: ref('dim_movies')
+              field: movie_id
+      - name: genre_key
+        tests:
+          - relationships:
+              to: ref('dim_genres')
+              field: genre_key
 
   - name: fct_movie_economics
     description: "Financial metrics for each movie. Join to dim_movies on movie_id."
