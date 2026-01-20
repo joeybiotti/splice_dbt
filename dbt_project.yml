@@ -17,10 +17,16 @@ clean-targets:
   - "dbt_packages"
 
 models:
-  splice_dbt:
-    staging:
-      +materialized: view
-      +schema: staging
+  splice_dbt: 
     marts:
       +materialized: table
-      +schema: marts
+      core:
+        +column_types:
+          movie_id: VARCHAR
+      facts:
+        +column_types:
+          revenue: FLOAT
+    intermediate:
+      +materialized: ephemeral
+    staging:
+      +materialized: view

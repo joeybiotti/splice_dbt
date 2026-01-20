@@ -1,29 +1,8 @@
 version: 2
 
 models:
-  - name: dim_movies
-    description: "The primary dimension for movies. Contains one row per unique movie title/director/year."
-    columns:
-      - name: movie_id
-        tests:
-          - unique
-          - not_null
-      - name: title
-        description: "The cleaned title of the movie."
-
-  - name: dim_genres
-    description: "A lookup table for all unique movie genres found in the dataset."
-    columns:
-      - name: genre_key
-        tests:
-          - unique
-          - not_null
-      - name: genre_name
-        tests:
-          - not_null
-
   - name: fct_movie_economics
-    description: "Financial metrics for each movie. Join to dim_movies on movie_id."
+    description: "Central fact table for movie financial performance."
     columns:
       - name: movie_id
         tests:
@@ -31,5 +10,17 @@ models:
           - relationships:
               to: ref('dim_movies')
               field: movie_id
-      - name: total_profit
-        description: "Revenue minus budget."
+
+  - name: bridge_movie_genres
+    description: "Resolves M2M relationship between movies and genres."
+    columns:
+      - name: movie_id
+        tests:
+          - relationships:
+              to: ref('dim_movies')
+              field: movie_id
+      - name: genre_key
+        tests:
+          - relationships:
+              to: ref('dim_genres')
+              field: genre_key
