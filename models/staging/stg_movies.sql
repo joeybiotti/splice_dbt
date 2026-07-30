@@ -27,6 +27,9 @@ renamed as (
         cast(imdb_score as float) as imdb_score,
         cast(aspect_ratio as float) as aspect_ration
 
+        -- Metadata
+        loaded_at
+
     from source
 
 )
