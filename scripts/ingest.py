@@ -1,5 +1,6 @@
 import duckdb
 from pathlib import Path
+from datetime import datetime, timezone
 
 BASE_DIR = Path(__file__).parent.parent
 RAW_DATA = BASE_DIR / "data" / "movies.raw.csv"
@@ -17,6 +18,8 @@ def run_ingest():
         print(f"Error: File not found at {RAW_DATA}")
         return
 
+    loaded_at = datetime.now(timezone.utc)
+
    # Connect to the persistent database file
     with duckdb.connect(str(DB_PATH)) as conn:
         conn.execute("CREATE SCHEMA IF NOT EXISTS raw;")
@@ -24,7 +27,8 @@ def run_ingest():
         print("Loading data into raw.movies...")
         conn.execute(f"""
                     CREATE OR REPLACE TABLE raw.movies AS 
-                    SELECT * FROM read_csv_auto('{RAW_DATA}')
+                    SELECT *,TIMESTAMP '{loaded_at}' AS loaded_at
+                    FROM read_csv_auto('{RAW_DATA}')
                     """)
 
         # Quick validation
