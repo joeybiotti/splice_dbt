@@ -25,7 +25,7 @@ renamed as (
         cast(budget as bigint) as budget,
         cast(num_voted_users as integer) as num_voted_users,
         cast(imdb_score as float) as imdb_score,
-        cast(aspect_ratio as float) as aspect_ration
+        cast(aspect_ratio as float) as aspect_ration,
 
         -- Metadata
         loaded_at
