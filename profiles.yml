@@ -1,7 +1,0 @@
-splice_dbt:  
-  target: dev
-  outputs:
-    dev:
-      type: duckdb
-      path: splice_warehouse.duckdb  # Relative path to your DB file
-      threads: 4
