@@ -28,5 +28,18 @@ jobs:
       - name: Run ingest script
         run: python scripts/ingest.py
 
+      - name: Set up dbt profile
+        run: |
+          mkdir -p ./ci_profile
+          cat <<EOF > ./ci_profile/profiles.yml
+          splice_dbt:
+            target: ci
+            outputs:
+              ci:
+                type: duckdb
+                path: splice_warehouse.duckdb
+                threads: 4
+          EOF
+
       - name: Run dbt build
-        run: dbt build --profiles-dir .
+        run: dbt build --profiles-dir ./ci_profile
