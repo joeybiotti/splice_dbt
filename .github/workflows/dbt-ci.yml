@@ -9,8 +9,6 @@ on:
 jobs:
   dbt-build:
     runs-on: ubuntu-latest
-    env:
-      DBT_PROFILES_DIR: $HOME/.dbt
 
     steps:
       - name: Checkout repo
@@ -25,21 +23,10 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Install dbt packages
-        run: dbt deps
+        run: dbt deps --profiles-dir .
 
       - name: Run ingest script
         run: python scripts/ingest.py
 
-      - name: Set up dbt profile (DuckDB)
-        run: |
-          mkdir -p $HOME/.dbt
-          # Use a file-based DuckDB in the runner temp directory so artifacts persist during the job.
-          DB_PATH="${RUNNER_TEMP:-/tmp}/splice.duckdb"
-          printf 'splice_dbt:\n  target: ci\n  outputs:\n    ci:\n      type: duckdb\n      path: %s\n      threads: 1\n' "$DB_PATH" > $HOME/.dbt/profiles.yml
-          echo "Wrote DBT profile to $HOME/.dbt/profiles.yml (duckdb path=$DB_PATH)"
-
-      - name: Check dbt profile
-        run: dbt debug --profiles-dir $HOME/.dbt
-
       - name: Run dbt build
-        run: dbt build
+        run: dbt build --profiles-dir .
